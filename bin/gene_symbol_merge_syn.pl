@@ -52,11 +52,50 @@ my $OFS = "\t";
 print "#symbol${OFS}description${OFS}identifier\n";
 
 my @data;
+my %seen_id_and_symbol;
 while (<>) {
     chomp;
-    next if /^#/;
+    next if (/^#/ || /gene_symbol/);
     my @fields = split /\t/, $_, -1;
-    push @data, \@fields if @fields >= 4;
+    if (scalar(@fields) < 4) {
+      print "== 1 ==\n";
+      die "\nDIED at line $., which has only " . scalar(@fields) . " fields, but at least 4 are required:\n" .
+          "gene_symbol	gene_symbol_long	identifier	primary\n\n";
+    }
+
+    my ($gene_symbol, $gene_symbol_long, $identifier, $primary) = @fields;
+
+    if ($primary ne 0 && $primary ne 1) {
+      print "== 2 ==\n";
+      die "\nDIED at line $. The fourth field must be 1 or 0, but in line $. is " . $primary . "\n\n";
+    }
+    if ($identifier =~ /glyma.Wm82.gnm1.ann\d.Glyma\.\d\dg/i) {
+      print "== 3 ==\n";
+      die "\nDIED at line $. The identifier has the form of an Wms82 2+ gene ID, but is from gnm1:\n" .
+          "\n  $identifier\n\n";
+    }
+    if ($identifier =~ /glyma.Wm82.gnm[23456789].ann\d.Glyma\d\dg/i) {
+      print "== 4 ==\n";
+      die "\nDIED at line $. The identifier has the form of a Wms82 assembly 1 gene ID, but is from a later assembly:" .
+          "\n  $identifier\n\n";
+    }
+
+    # Change to canonical case for glyma.Wm82 gene IDs (lc "g" for ann1; uc "G" for ann2,3,4,5,6,...
+    $identifier =~ s/glyma.Wm82.gnm1.ann1.Glyma(\d\d)G/glyma.Wm82.gnm1.ann1.Glyma$1g/i;
+    $identifier =~ s/glyma.Wm82.gnm1.ann1.Glyma(\d+)S/glyma.Wm82.gnm1.ann1.Glyma$1s/i;
+
+    $identifier =~ s/glyma.Wm82.gnm[23456789]\.ann\d.Glyma\.(\d\d)g/glyma.Wm82.gnm1.ann1.Glyma.$1G/i;
+    $identifier =~ s/glyma.Wm82.gnm[23456789]\.ann\d.Glyma\.u/glyma.Wm82.gnm1.ann1.Glyma.U/i;
+    $identifier =~ s/glyma.Wm82.gnm[23456789]\.ann\d.Glyma\.(\d+)s/glyma.Wm82.gnm1.ann1.Glyma.$1S/i;
+
+    if ($seen_id_and_symbol{$identifier.$gene_symbol}){ # Skip this line if we've already seen this ID & symbol
+      next
+    }
+    else { 
+      $seen_id_and_symbol{$identifier.$gene_symbol}++;
+      my @canonicalized_data = ($gene_symbol, $gene_symbol_long, $identifier, $primary);
+      push @data, \@canonicalized_data;
+    }
 }
 
 # Sort: first by $fields[2] (3rd field, lexically), then by $fields[3] (4th, numerically, reverse)
@@ -88,3 +127,9 @@ for my $fields (@data) {
     }
 }
 print join($OFS, $cat, $desc, $id), "\n" if !$first_line;
+
+__END__
+Version
+2025-07-25 Initial version
+2025-09-01 Add some error checking, and canonicalize case for Wm82 annotations
+
