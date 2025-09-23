@@ -16,22 +16,37 @@ Then the derived `gene_symbols.tsv` would be moved into the jekyll-soybase `_dat
 There should be no reason to maintain the derived file within the present repository.
 
 
-## Some details
+## Important details
+
+### File format
+
+* File is supposed to be Tab seprated (.tsv) 
+* If __Microsoft Excel__ is used to generate the *.tsv file, there are hidden (non-printed) characters in the file. 
+  - To remove these hidden (non-printed) characters open the file in vim and enter the following commands
+
+```
+       
+       :%s/[[:cntrl:]]/^I/g  # removes all 'end of cell hidden characters' and replace with tab (Control+V, Control+I)
+       :wq    #write and close file
+```
+
+### Perl Script
 
 The only purpose of the `gene_symbol_merge_syn.pl` script is to merge synonyms for a given gene into one field, for display.
 
 For example:
 
 ```
-       from   #symbol  description   identifier  primary
-              A        fedsa         gene1       1
-              B        zxdf          gene1       0
-              C        sdfb          gene1       0
-              D        tbex          gene2       1
-       
-       to     #symbol  description   identifier  
-              A, B, C  fedsa         gene1
-              D        tbex          gene2
+       from   gene_symbol       gene_symbol_long     identifier                            primary
+              A                 fedsa                glyma.Wm82.gnm#.ann#.Glyma.gene1       1
+              B                 zxdf                 glyma.Wm82.gnm#.ann#.Glyma.gene1       0
+              C                 sdfb                 glyma.Wm82.gnm#.ann#.Glyma.gene1       0
+              D                 tbex                 glyma.Wm82.gnm#.ann#.Glyma.gene2       1
+
+
+       to     gene_symbol       gene_symbol_long     identifier 
+              A, B, C           fedsa                glyma.Wm82.gnm#.ann#.Glyma.gene1
+              D                 tbex                 glyma.Wm82.gnm#.ann#.Glyma.gene2
 ```
 
 The intended purpose is to produce a table with comma-separated gene symbols in column 1
