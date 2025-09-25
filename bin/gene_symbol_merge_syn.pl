@@ -14,13 +14,13 @@ DESCRIPTION
   gene_symbol_merge_syn.pl - Process a four-column file, pulling elements in the first column
                               into one row when they have a common third element. Example:
 
-       from   #symbol  description   identifier  primary
+       from   gene_symbol	gene_symbol_long	_identifier	primary
               A        fedsa         gene1       1
               B        zxdf          gene1       0
               C        sdfb          gene1       0
               D        tbex          gene2       1
        
-       to     #symbol  description   identifier  
+       to     gene_symbol	gene_symbol_long	identifier
               A, B, C  fedsa         gene1
               D        tbex          gene2
 
@@ -32,13 +32,14 @@ DESCRIPTION
   
   To identify symbols to be used as the source of the description, use 1 or 0 in the fourth column. 
 
-  For maintaing versions of the gene_symbols_maintenance.tsv file, it is good practice
+  For maintaining versions of the gene_symbols_maintenance.tsv file, it is good practice
   to keep the file sorted by column 3, then by column 4 (reverse):
-    cat gene_symbols_maintenance.tsv | sort -t $'\t' -k3,3 -k4nr,4nr > sorted
+    cat gene_symbols_maintenance.tsv | sort -t \$'\\t' -k3,3 -k4nr,4nr > sorted
     mv sorted gene_symbols_maintenance.tsv
     
 OUTPUT
     Input modified as described above -- but note that only the first three columns are reported.
+    The output is sorted by the first column (gene symbols).
 
 USAGE
     exit(1);
@@ -93,7 +94,7 @@ while (<>) {
     $identifier =~ s/glyma.Wm82.gnm1.ann1.Glyma(\d+)S/glyma.Wm82.gnm1.ann1.Glyma$1s/i;
 
     $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.(\d\d)g/$1.$2G/i;
-    $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.u/$1.$2.U/i;
+    $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.u/$1.U/i;
     $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.(\d+)s/$1.$2S/i;
 
     if ($seen_id_and_symbol{$identifier.$gene_symbol}){ # Skip this line if we've already seen this ID & symbol
@@ -111,12 +112,11 @@ while (<>) {
     $a->[2] cmp $b->[2] ||
     $b->[3] <=> $a->[3]
 } @data;
-print "=====\n";
-print Dumper(@data), "\n";
 
 my ($prev, $cat, $desc, $id);
 my $first_line = 1;
 
+my @to_print;
 for my $fields (@data) {
     if ($first_line) {
         $cat = $fields->[0];
@@ -129,13 +129,19 @@ for my $fields (@data) {
     if ($fields->[2] eq $prev) {
         $cat .= ", $fields->[0]";
     } else {
-        print join($OFS, $cat, $desc, $id), "\n";
+        my $new_record = join($OFS, $cat, $desc, $id);
+        push @to_print, $new_record;
         $cat = $fields->[0];
         $desc = $fields->[1];
         $id = $fields->[2];
         $prev = $id;
     }
 }
+
+my @to_print_sorted = sort { $a cmp $b } @to_print;
+foreach my $row (@to_print_sorted) {
+   print $row, "\n";
+} 
 print join($OFS, $cat, $desc, $id), "\n" if !$first_line;
 
 __END__
@@ -144,3 +150,4 @@ Version
 2025-09-01 Add some error checking, and canonicalize case for Wm82 annotations
 2025-09-25 Change header line (no leading pound sign). Add check for space within IDs.
            Bug fix in prefix for gnm2 annotations. Add comments about sorting the input file.
+           Print output sorted by first column (gene symbols).
