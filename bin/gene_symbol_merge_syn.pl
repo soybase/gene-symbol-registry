@@ -49,7 +49,7 @@ my $FS = "\t";
 my $OFS = "\t";
 
 # Print header
-print "#symbol${OFS}description${OFS}identifier\n";
+print "gene_symbol${OFS}gene_symbol_long${OFS}identifier\n";
 
 my @data;
 my %seen_id_and_symbol;
@@ -79,6 +79,11 @@ while (<>) {
       die "\nDIED at line $. The identifier has the form of a Wms82 assembly 1 gene ID, but is from a later assembly:" .
           "\n  $identifier\n\n";
     }
+    if ($identifier =~ / /) {
+      print "== 5 ==\n";
+      die "\nDIED at line $. The identifier contains one or more spaces.\n\n"
+    }
+
 
     # Change to canonical case for glyma.Wm82 gene IDs (lc "g" for ann1; uc "G" for ann2,3,4,5,6,...
     $identifier =~ s/glyma.Wm82.gnm1.ann1.Glyma(\d\d)G/glyma.Wm82.gnm1.ann1.Glyma$1g/i;
@@ -132,4 +137,4 @@ __END__
 Version
 2025-07-25 Initial version
 2025-09-01 Add some error checking, and canonicalize case for Wm82 annotations
-
+2025-09-25 Change header line (no leading pound sign). Add check for space within IDs.
