@@ -30,8 +30,9 @@ DESCRIPTION
   Note that for lines with multiple synonyms (such as A, B, C above), only the description
   for the first symbol is reported. Thus, put the "primary" symbol first in the list.
   
-  To identify symbols to be used as the source of the description, use 1 or 0 in the fourth
-  column. For maintaing versions of the gene_symbols_maintenance.tsv file, it is good practice
+  To identify symbols to be used as the source of the description, use 1 or 0 in the fourth column. 
+
+  For maintaing versions of the gene_symbols_maintenance.tsv file, it is good practice
   to keep the file sorted by column 3, then by column 4 (reverse):
     cat gene_symbols_maintenance.tsv | sort -t $'\t' -k3,3 -k4nr,4nr > sorted
     mv sorted gene_symbols_maintenance.tsv
