@@ -31,8 +31,11 @@ DESCRIPTION
   for the first symbol is reported. Thus, put the "primary" symbol first in the list.
   
   To identify symbols to be used as the source of the description, use 1 or 0 in the fourth
-  column. Sort the table by column 3, then by column 1 (reverse), e.g. ...
-
+  column. For maintaing versions of the gene_symbols_maintenance.tsv file, it is good practice
+  to keep the file sorted by column 3, then by column 4 (reverse):
+    cat gene_symbols_maintenance.tsv | sort -t $'\t' -k3,3 -k4nr,4nr > sorted
+    mv sorted gene_symbols_maintenance.tsv
+    
 OUTPUT
     Input modified as described above -- but note that only the first three columns are reported.
 
@@ -84,14 +87,13 @@ while (<>) {
       die "\nDIED at line $. The identifier contains one or more spaces.\n\n"
     }
 
-
     # Change to canonical case for glyma.Wm82 gene IDs (lc "g" for ann1; uc "G" for ann2,3,4,5,6,...
     $identifier =~ s/glyma.Wm82.gnm1.ann1.Glyma(\d\d)G/glyma.Wm82.gnm1.ann1.Glyma$1g/i;
     $identifier =~ s/glyma.Wm82.gnm1.ann1.Glyma(\d+)S/glyma.Wm82.gnm1.ann1.Glyma$1s/i;
 
-    $identifier =~ s/glyma.Wm82.gnm[23456789]\.ann\d.Glyma\.(\d\d)g/glyma.Wm82.gnm1.ann1.Glyma.$1G/i;
-    $identifier =~ s/glyma.Wm82.gnm[23456789]\.ann\d.Glyma\.u/glyma.Wm82.gnm1.ann1.Glyma.U/i;
-    $identifier =~ s/glyma.Wm82.gnm[23456789]\.ann\d.Glyma\.(\d+)s/glyma.Wm82.gnm1.ann1.Glyma.$1S/i;
+    $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.(\d\d)g/$1.$2G/i;
+    $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.u/$1.$2.U/i;
+    $identifier =~ s/(glyma.Wm82.gnm[23456789]\.ann\d.Glyma)\.(\d+)s/$1.$2S/i;
 
     if ($seen_id_and_symbol{$identifier.$gene_symbol}){ # Skip this line if we've already seen this ID & symbol
       next
@@ -108,6 +110,8 @@ while (<>) {
     $a->[2] cmp $b->[2] ||
     $b->[3] <=> $a->[3]
 } @data;
+print "=====\n";
+print Dumper(@data), "\n";
 
 my ($prev, $cat, $desc, $id);
 my $first_line = 1;
@@ -138,3 +142,4 @@ Version
 2025-07-25 Initial version
 2025-09-01 Add some error checking, and canonicalize case for Wm82 annotations
 2025-09-25 Change header line (no leading pound sign). Add check for space within IDs.
+           Bug fix in prefix for gnm2 annotations. Add comments about sorting the input file.
