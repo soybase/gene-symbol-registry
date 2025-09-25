@@ -1,8 +1,8 @@
-gene_symbol	gene_symbol_long	identifier	primary
+gene_symbol	gene_symbol_long	_identifier	primary
 A	A long	glyma.Wm82.gnm1.ann1.Glyma01g01190	1
 B	B long	glyma.Wm82.gnm2.ann1.Glyma.01G069300	1
-bad3	bad3 long	glyma.Wm82.gnm2.ann1. Glyma.01G069300	1
 ARF01	Auxin Responsive Factor gene 1	glyma.Wm82.gnm2.ann1.Glyma.01G002100	1
-bad1	bad1 long	glyma.Wm82.gnm1.ann1.Glyma.01G069300	1
-bad2	bad2 long	glyma.Wm82.gnm2.ann1.Glyma01g01190	1
-ARF01, NCED16, B3-01	Auxin Responsive Factor gene 1	glyma.Wm82.gnm1.ann1.Glyma.01G002100	1
+#bad3	bad3 long	glyma.Wm82.gnm2.ann1. Glyma.01G069300	1
+#bad1	bad1 long	glyma.Wm82.gnm1.ann1.Glyma.01G069300	1
+#bad2	bad2 long	glyma.Wm82.gnm2.ann1.Glyma01g01190	1
+#ARF01, NCED16, B3-01	Auxin Responsive Factor gene 1	glyma.Wm82.gnm1.ann1.Glyma.01G002100	1
